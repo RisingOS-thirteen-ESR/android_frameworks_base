@@ -81,6 +81,9 @@ public class PropImitationHooks {
     private static final String PACKAGE_GOOGLE_WALLPAPERS = "com.google.android.wallpaper";
     private static final String PACKAGE_SNAPCHAT = "com.snapchat.android";
 
+    private static final String[] sCertifiedProps =
+            Resources.getSystem().getStringArray(R.array.config_certifiedBuildProperties);
+
     private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
             "com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity");
 
@@ -183,6 +186,14 @@ public class PropImitationHooks {
         return "";
     }
 
+    private static String getDeviceName(String fingerprint) {
+        String[] parts = fingerprint.split("/");
+        if (parts.length >= 2) {
+            return parts[1];
+        }
+        return "";
+    }
+
     private static volatile boolean sIsGms, sIsFinsky;
     private static volatile String sProcessName;
 
@@ -201,7 +212,7 @@ public class PropImitationHooks {
             && (processName.equals(PROCESS_GMS_PERSISTENT) || processName.equals(PROCESS_GMS_UI));
 
         if (packageName.equals(PACKAGE_GMS)) {
-            dlog("Setting Pixel 2 fingerprint for: " + packageName);
+            dlog("Setting certified fingerprint for: " + packageName);
             setCertifiedPropsForGms(sIsGms);
         } else if (sIsAtraceCoreService){
             dlog("Spoofing as Pixel Fold for: " + packageName);
@@ -218,7 +229,7 @@ public class PropImitationHooks {
                     break;
                 case PACKAGE_SNAPCHAT:
                     dlog("Spoofing as Pixel 2 for: " + packageName);
-                    spoofBuildGms();
+                    spoofToPixel2();
                     break;
                 case PACKAGE_GCAM:
                     if (SystemProperties.getBoolean("persist.sys.pixelprops.gcam", false)) {
@@ -304,7 +315,11 @@ public class PropImitationHooks {
         if (!was) {
             dlog("Spoofing build for GMS");
             if (isGms) {
-                spoofBuildGms();
+                if (sCertifiedProps == null || sCertifiedProps.length == 0) {
+                    dlog("Skip spoofing build for GMS, because there's no values from sCertifiedProps");
+                } else {
+                    spoofBuildGms();
+                }
             } else {
                 sPTabletProps.forEach((k, v) -> setPropValue(k, v));
             }
@@ -371,6 +386,21 @@ public class PropImitationHooks {
     }
 
     private static void spoofBuildGms() {
+        setPropValue("BRAND", sCertifiedProps[0]);
+        setPropValue("MANUFACTURER", sCertifiedProps[1]);
+        setPropValue("DEVICE", sCertifiedProps[3].isEmpty() ? getDeviceName(sCertifiedProps[6]) : sCertifiedProps[3]);
+        setPropValue("PRODUCT", sCertifiedProps[4].isEmpty() ? getDeviceName(sCertifiedProps[6]) : sCertifiedProps[4]);
+        setPropValue("MODEL", sCertifiedProps[5]);
+        setPropValue("FINGERPRINT", sCertifiedProps[6]);
+        if (sCertifiedProps[7].isEmpty()) {
+             dlog("Skip spoofing first API level, because it is empty");
+        } else {
+             setPropValue("FIRST_API_LEVEL", sCertifiedProps[7]);
+        }
+        setVersionFieldString("SECURITY_PATCH", sCertifiedProps[8]);
+    }
+
+    private static void spoofToPixel2() {
         // Alter most build properties for cts profile match checks
         setPropValue("BRAND", "google");
         setPropValue("PRODUCT", "walleye");
