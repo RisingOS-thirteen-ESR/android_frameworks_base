@@ -14,12 +14,10 @@
 <resources>
     <!-- Build properties from a GMS certified device against current platform SPL level -->
     <string-array name="config_certifiedBuildProperties" translatable="false">
-      <!-- 
-        <item>Build.DEVICE</item>
-        <item>Build.PRODUCT</item>
-        <item>Build.MODEL</item>
-        <item>Build.FINGERPRINT</item>
-      -->
+        <item>marlin</item>   <!-- Build.DEVICE -->
+        <item>marlin</item>   <!-- Build.PRODUCT -->
+        <item>Pixel XL</item> <!-- Build.MODEL -->
+        <item>google/marlin/marlin:7.1.2/NJH47F/4146041:user/release-keys</item> <!-- Build.FINGERPRINT -->
     </string-array>
 
     <!-- Build fingerprint from the stock ROM -->
