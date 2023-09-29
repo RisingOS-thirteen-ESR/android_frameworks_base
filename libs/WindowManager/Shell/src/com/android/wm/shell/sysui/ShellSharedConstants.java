@@ -40,4 +40,6 @@ public class ShellSharedConstants {
     public static final String KEY_EXTRA_SHELL_FLOATING_TASKS = "extra_shell_floating_tasks";
     // See IDesktopMode.aidl
     public static final String KEY_EXTRA_SHELL_DESKTOP_MODE = "extra_shell_desktop_mode";
+    // See IFreeform.aidl
+    public static final String KEY_EXTRA_SHELL_FREEFORM = "extra_shell_freeform";
 }

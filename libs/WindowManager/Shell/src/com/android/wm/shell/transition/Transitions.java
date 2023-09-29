@@ -110,6 +110,9 @@ public class Transitions implements RemoteCallable<Transitions> {
     /** Transition type for maximize to freeform transition. */
     public static final int TRANSIT_RESTORE_FROM_MAXIMIZE = WindowManager.TRANSIT_FIRST_CUSTOM + 9;
 
+    /** Transition type for exiting freeform via the Shell */
+    public static final int TRANSIT_EXIT_FREEFORM = WindowManager.TRANSIT_FIRST_CUSTOM + 10;
+
     private final WindowOrganizer mOrganizer;
     private final Context mContext;
     private final ShellExecutor mMainExecutor;
