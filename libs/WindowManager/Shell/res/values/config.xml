@@ -125,4 +125,7 @@
 
     <!-- Whether the additional education about reachability is enabled -->
     <bool name="config_letterboxIsReachabilityEducationEnabled">false</bool>
+
+    <!-- Whether freeform tasks are always on top -->
+    <bool name="config_freeformAlwaysOnTop">false</bool>
 </resources>
