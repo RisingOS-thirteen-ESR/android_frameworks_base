@@ -76,6 +76,9 @@ public class PropImitationHooks {
          */
         if (sIsGms) {
             setCertifiedPropsForGms();
+        } else if (packageName.equals(PACKAGE_GMS)) {
+            dlog("Setting fresh build date for: " + packageName);
+            setPropValue("TIME", System.currentTimeMillis());
         } else if (!sStockFp.isEmpty() && packageName.equals(PACKAGE_ARCORE)) {
             dlog("Setting stock fingerprint for: " + packageName);
             setPropValue("FINGERPRINT", sStockFp);
