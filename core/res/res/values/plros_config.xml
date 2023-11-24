@@ -18,6 +18,7 @@
         <item>bullhead</item>   <!-- Build.PRODUCT -->
         <item>Nexus 5X</item> <!-- Build.MODEL -->
         <item>google/bullhead/bullhead:8.0.0/OPR6.170623.013/4283548:user/release-keys</item> <!-- Build.FINGERPRINT -->
+        <item>N</item> <!-- Build.DEVICE_INITIAL_SDK_INT -->
     </string-array>
 
     <!-- Build fingerprint from the stock ROM -->

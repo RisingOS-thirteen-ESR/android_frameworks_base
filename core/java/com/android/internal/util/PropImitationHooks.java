@@ -95,9 +95,9 @@ public class PropImitationHooks {
     }
 
     private static void setCertifiedPropsForGms() {
-        if (sCertifiedProps.length != 4) {
+        if (sCertifiedProps.length != 5) {
             Log.e(TAG, "Insufficient array size for certified props: "
-                    + sCertifiedProps.length + ", required 4");
+                    + sCertifiedProps.length + ", required 5");
             return;
         }
         final boolean was = isGmsAddAccountActivityOnTop();
@@ -118,6 +118,7 @@ public class PropImitationHooks {
             setPropValue("PRODUCT", sCertifiedProps[1]);
             setPropValue("MODEL", sCertifiedProps[2]);
             setPropValue("FINGERPRINT", sCertifiedProps[3]);
+            setPropValue("DEVICE_INITIAL_SDK_INT", sCertifiedProps[4]);
         } else {
             dlog("Skip spoofing build for GMS, because GmsAddAccountActivityOnTop");
         }
