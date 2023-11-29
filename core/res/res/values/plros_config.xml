@@ -14,11 +14,13 @@
 <resources>
     <!-- Build properties from a GMS certified device against current platform SPL level -->
     <string-array name="config_certifiedBuildProperties" translatable="false">
-        <item>bullhead</item>   <!-- Build.DEVICE -->
-        <item>bullhead</item>   <!-- Build.PRODUCT -->
-        <item>Nexus 5X</item> <!-- Build.MODEL -->
-        <item>google/bullhead/bullhead:8.0.0/OPR6.170623.013/4283548:user/release-keys</item> <!-- Build.FINGERPRINT -->
-        <item>N</item> <!-- Build.DEVICE_INITIAL_SDK_INT -->
+        <item>foster</item>   <!-- Build.DEVICE -->
+        <item>foster_e</item>   <!-- Build.PRODUCT -->
+        <item>SHIELD Android TV</item> <!-- Build.MODEL -->
+        <item>NVIDIA/foster_e/foster:7.0/NRD90M/2427173_1038.2788:user/release-keys"</item> <!-- Build.FINGERPRINT -->
+        <item>NVIDIA</item> <!-- Build.BRAND -->
+        <item>NVIDIA</item> <!-- Build.MANUFACTURER -->
+        <item>2018-01-05</item> <!-- Build.SECURITY_PATCH -->
     </string-array>
 
     <!-- Build fingerprint from the stock ROM -->

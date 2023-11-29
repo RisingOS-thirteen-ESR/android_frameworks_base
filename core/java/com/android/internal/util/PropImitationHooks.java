@@ -97,10 +97,22 @@ public class PropImitationHooks {
         }
     }
 
+    private static void setVersionFieldString(String key, String value) {
+        try {
+            dlog("Setting prop " + key + " to " + value.toString());
+            Field field = Build.VERSION.class.getDeclaredField(key);
+            field.setAccessible(true);
+            field.set(null, value);
+            field.setAccessible(false);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            Log.e(TAG, "Failed to spoof prop " + key, e);
+        }
+    }
+
     private static void setCertifiedPropsForGms() {
-        if (sCertifiedProps.length != 5) {
+        if (sCertifiedProps.length != 7) {
             Log.e(TAG, "Insufficient array size for certified props: "
-                    + sCertifiedProps.length + ", required 5");
+                    + sCertifiedProps.length + ", required 7");
             return;
         }
         final boolean was = isGmsAddAccountActivityOnTop();
@@ -121,7 +133,9 @@ public class PropImitationHooks {
             setPropValue("PRODUCT", sCertifiedProps[1]);
             setPropValue("MODEL", sCertifiedProps[2]);
             setPropValue("FINGERPRINT", sCertifiedProps[3]);
-            setPropValue("DEVICE_INITIAL_SDK_INT", sCertifiedProps[4]);
+            setPropValue("BRAND", sCertifiedProps[4]);
+            setPropValue("MANUFACTURER", sCertifiedProps[5]);
+            setVersionFieldString("SECURITY_PATCH", sCertifiedProps[6]);
         } else {
             dlog("Skip spoofing build for GMS, because GmsAddAccountActivityOnTop");
         }
