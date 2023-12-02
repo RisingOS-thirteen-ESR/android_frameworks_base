@@ -110,9 +110,9 @@ public class PropImitationHooks {
     }
 
     private static void setCertifiedPropsForGms() {
-        if (sCertifiedProps.length != 7) {
+        if (sCertifiedProps.length != 8) {
             Log.e(TAG, "Insufficient array size for certified props: "
-                    + sCertifiedProps.length + ", required 7");
+                    + sCertifiedProps.length + ", required 8");
             return;
         }
         final boolean was = isGmsAddAccountActivityOnTop();
@@ -136,6 +136,11 @@ public class PropImitationHooks {
             setPropValue("BRAND", sCertifiedProps[4]);
             setPropValue("MANUFACTURER", sCertifiedProps[5]);
             setVersionFieldString("SECURITY_PATCH", sCertifiedProps[6]);
+            if (sCertifiedProps[7].isEmpty()) {
+            	dlog("Skip spoofing first API level, because it is empty");
+            } else {
+                setPropValue("FIRST_API_LEVEL", sCertifiedProps[7]);
+            }
         } else {
             dlog("Skip spoofing build for GMS, because GmsAddAccountActivityOnTop");
         }
