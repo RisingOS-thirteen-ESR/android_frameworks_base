@@ -2,6 +2,7 @@
  * Copyright (C) 2022 Paranoid Android
  *           (C) 2023 ArrowOS
  *           (C) 2023 The LibreMobileOS Foundation
+ *           (C) 2024 Project Lineage Remix Open Source
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +24,9 @@ import android.app.Application;
 import android.app.TaskStackListener;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Resources;
 import android.os.Build;
 import android.os.Binder;
@@ -44,9 +48,6 @@ public class PropImitationHooks {
 
     private static final String TAG = "PropImitationHooks";
     private static final boolean DEBUG = false;
-
-    private static final String[] sCertifiedProps =
-            Resources.getSystem().getStringArray(R.array.config_certifiedBuildProperties);
 
     private static final String sStockFp =
             Resources.getSystem().getString(R.string.config_stockFingerprint);
@@ -143,7 +144,7 @@ public class PropImitationHooks {
          * Set stock fingerprint for ARCore
          */
         if (sIsGms) {
-            setCertifiedPropsForGms();
+            setCertifiedPropsForGms(context);
         } else if (packageName.equals(PACKAGE_GMS)) {
             dlog("Setting fresh build date for: " + packageName);
             setPropValue("TIME", System.currentTimeMillis());
@@ -206,10 +207,10 @@ public class PropImitationHooks {
         }
     }
 
-    private static void setCertifiedPropsForGms() {
-        if (sCertifiedProps.length != 8) {
-            Log.e(TAG, "Insufficient array size for certified props: "
-                    + sCertifiedProps.length + ", required 8");
+    private static void setCertifiedPropsForGms(Context context) {
+        String packageName = "top.kusuma.pihooks";
+        if (!isPackageInstalled(context, packageName)) {
+            Log.e(TAG, "'" + packageName + "' is not installed.");
             return;
         }
         final boolean was = isGmsAddAccountActivityOnTop();
@@ -226,17 +227,29 @@ public class PropImitationHooks {
         };
         if (!was) {
             dlog("Spoofing build for GMS");
-            setPropValue("DEVICE", sCertifiedProps[0]);
-            setPropValue("PRODUCT", sCertifiedProps[1]);
-            setPropValue("MODEL", sCertifiedProps[2]);
-            setPropValue("FINGERPRINT", sCertifiedProps[3]);
-            setPropValue("BRAND", sCertifiedProps[4]);
-            setPropValue("MANUFACTURER", sCertifiedProps[5]);
-            setVersionFieldString("SECURITY_PATCH", sCertifiedProps[6]);
-            if (sCertifiedProps[7].isEmpty()) {
-            	dlog("Skip spoofing first API level, because it is empty");
-            } else {
-                setPropValue("FIRST_API_LEVEL", sCertifiedProps[7]);
+            PackageManager pm = context.getPackageManager();
+            try {
+                Resources resources = pm.getResourcesForApplication(packageName);
+                int certifiedPropsId = resources.getIdentifier("certifiedBuildProperties", "array", packageName);
+                if (certifiedPropsId != 0) {
+                    String[] certifiedProps = resources.getStringArray(certifiedPropsId);
+                    setPropValue("DEVICE", certifiedProps[0]);
+                    setPropValue("PRODUCT", certifiedProps[1]);
+                    setPropValue("MODEL", certifiedProps[2]);
+                    setPropValue("FINGERPRINT", certifiedProps[3]);
+                    setPropValue("BRAND", certifiedProps[4]);
+                    setPropValue("MANUFACTURER", certifiedProps[5]);
+                    setVersionFieldString("SECURITY_PATCH", certifiedProps[6]);
+                    if (certifiedProps[7].isEmpty()) {
+                    	dlog("Skip spoofing first API level, because it is empty");
+                    } else {
+                        setPropValue("FIRST_API_LEVEL", certifiedProps[7]);
+                    }
+                } else {
+                    Log.e(TAG, "Resource 'certifiedBuildProperties' not found.");
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                Log.e(TAG, "Error getting resources for '" + packageName + "': " + e.getMessage());
             }
         } else {
             dlog("Skip spoofing build for GMS, because GmsAddAccountActivityOnTop");
@@ -277,6 +290,24 @@ public class PropImitationHooks {
     private static boolean isCallerSafetyNet() {
         return sIsGms && Arrays.stream(Thread.currentThread().getStackTrace())
                 .anyMatch(elem -> elem.getClassName().contains("DroidGuard"));
+    }
+
+    private static boolean isPackageInstalled(Context context, String packageName, boolean ignoreState) {
+        if (packageName != null) {
+            try {
+                PackageInfo pi = context.getPackageManager().getPackageInfo(packageName, 0);
+                if ((!pi.applicationInfo.enabled || !pi.applicationInfo.isProduct()) && !ignoreState) {
+                    return false;
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean isPackageInstalled(Context context, String packageName) {
+        return isPackageInstalled(context, packageName, true);
     }
 
     public static void onEngineGetCertificateChain() {

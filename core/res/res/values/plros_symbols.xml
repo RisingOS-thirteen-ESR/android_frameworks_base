@@ -13,6 +13,5 @@
 -->
 <resources>
     <!-- PropImitationHooks -->
-    <java-symbol type="array" name="config_certifiedBuildProperties" />
     <java-symbol type="string" name="config_stockFingerprint" />
 </resources>
