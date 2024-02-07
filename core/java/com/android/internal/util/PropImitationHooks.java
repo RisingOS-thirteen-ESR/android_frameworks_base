@@ -211,7 +211,6 @@ public class PropImitationHooks {
             dlog("Spoofing as Pixel Tablet for: " + packageName);
             sPTabletProps.forEach((k, v) -> setPropValue(k, v));
         } else {
-            setVersionFieldString("SECURITY_PATCH", "2023-09-01");
             switch (packageName) {
                 case PACKAGE_ARCORE:
                     dlog("Setting stock fingerprint for: " + packageName);
