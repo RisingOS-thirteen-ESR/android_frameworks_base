@@ -58,6 +58,7 @@ public class PropImitationHooks {
     private static final String PACKAGE_FINSKY = "com.android.vending";
     private static final String PACKAGE_GMS = "com.google.android.gms";
     private static final String PROCESS_GMS_UNSTABLE = PACKAGE_GMS + ".unstable";
+    private static final String PACKAGE_SETUPWIZARD = "com.google.android.setupwizard";
 
     private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
             "com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity");
@@ -126,7 +127,7 @@ public class PropImitationHooks {
     ));
 
     private static volatile String sProcessName;
-    private static volatile boolean sIsGms, sIsFinsky;
+    private static volatile boolean sIsGms, sIsFinsky, sIsSetupWizard;
 
     private static String getBuildID(String fingerprint) {
         Pattern pattern = Pattern.compile("([A-Za-z0-9]+\\.\\d+\\.\\d+\\.\\w+)");
@@ -158,6 +159,7 @@ public class PropImitationHooks {
         sProcessName = processName;
         sIsGms = packageName.equals(PACKAGE_GMS) && processName.equals(PROCESS_GMS_UNSTABLE);
         sIsFinsky = packageName.equals(PACKAGE_FINSKY);
+        sIsSetupWizard = packageName.equals(PACKAGE_SETUPWIZARD);
 
         /* Set certified properties for GMSCore
          * Set stock fingerprint for ARCore
@@ -340,7 +342,7 @@ public class PropImitationHooks {
 
     public static void onEngineGetCertificateChain() {
         // Check stack for SafetyNet or Play Integrity
-        if (isCallerSafetyNet() || sIsFinsky) {
+        if ((isCallerSafetyNet() || sIsFinsky) && !sIsSetupWizard) {
             dlog("Blocked key attestation sIsGms=" + sIsGms + " sIsFinsky=" + sIsFinsky);
             throw new UnsupportedOperationException();
         }
