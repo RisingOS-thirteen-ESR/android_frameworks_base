@@ -43,6 +43,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 public class PropImitationHooks {
 
@@ -56,7 +58,6 @@ public class PropImitationHooks {
     private static final String PACKAGE_FINSKY = "com.android.vending";
     private static final String PACKAGE_GMS = "com.google.android.gms";
     private static final String PROCESS_GMS_UNSTABLE = PACKAGE_GMS + ".unstable";
-
 
     private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
             "com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity");
@@ -126,6 +127,24 @@ public class PropImitationHooks {
 
     private static volatile String sProcessName;
     private static volatile boolean sIsGms, sIsFinsky;
+
+    private static String getBuildID(String fingerprint) {
+        Pattern pattern = Pattern.compile("([A-Za-z0-9]+\\.\\d+\\.\\d+\\.\\w+)");
+        Matcher matcher = pattern.matcher(fingerprint);
+
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return "";
+    }
+
+    private static String getDeviceName(String fingerprint) {
+        String[] parts = fingerprint.split("/");
+        if (parts.length >= 2) {
+            return parts[1];
+        }
+        return "";
+    }
 
     public static void setProps(Context context) {
         final String packageName = context.getPackageName();
@@ -233,17 +252,26 @@ public class PropImitationHooks {
                 int certifiedPropsId = resources.getIdentifier("certifiedBuildProperties", "array", packageName);
                 if (certifiedPropsId != 0) {
                     String[] certifiedProps = resources.getStringArray(certifiedPropsId);
-                    setPropValue("DEVICE", certifiedProps[0]);
-                    setPropValue("PRODUCT", certifiedProps[1]);
-                    setPropValue("MODEL", certifiedProps[2]);
-                    setPropValue("FINGERPRINT", certifiedProps[3]);
-                    setPropValue("BRAND", certifiedProps[4]);
-                    setPropValue("MANUFACTURER", certifiedProps[5]);
-                    setVersionFieldString("SECURITY_PATCH", certifiedProps[6]);
-                    if (certifiedProps[7].isEmpty()) {
-                    	dlog("Skip spoofing first API level, because it is empty");
-                    } else {
-                        setPropValue("FIRST_API_LEVEL", certifiedProps[7]);
+                    setPropValue("MANUFACTURER", certifiedProps[0]);
+                    setPropValue("MODEL", certifiedProps[1]);
+                    setPropValue("FINGERPRINT", certifiedProps[2]);
+                    setPropValue("BRAND", certifiedProps[3]);
+                    setPropValue("PRODUCT", certifiedProps[4].isEmpty() ? getDeviceName(certifiedProps[2]) : certifiedProps[4]);
+                    setPropValue("DEVICE", certifiedProps[5].isEmpty() ? getDeviceName(certifiedProps[2]) : certifiedProps[5]);
+                    setPropValue("RELEASE", certifiedProps[6]);
+                    setPropValue("ID", certifiedProps[7].isEmpty() ? getBuildID(certifiedProps[2]) : certifiedProps[7]);
+                    setPropValue("INCREMENTAL", certifiedProps[8]);
+                    if (!certifiedProps[9].isEmpty()) {
+                        setPropValue("TYPE", certifiedProps[9]);
+                    }
+                    if (!certifiedProps[10].isEmpty()) {
+                        setPropValue("TAGS", certifiedProps[10]);
+                    }
+                    if (!certifiedProps[11].isEmpty()) {
+                        setPropValue("SECURITY_PATCH", certifiedProps[11]);
+                    }
+                    if (!certifiedProps[12].isEmpty()) {
+                        setPropValue("DEVICE_INITIAL_SDK_INT", certifiedProps[12]);
                     }
                 } else {
                     Log.e(TAG, "Resource 'certifiedBuildProperties' not found.");
