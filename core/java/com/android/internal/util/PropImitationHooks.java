@@ -206,25 +206,33 @@ public class PropImitationHooks {
 
     private static void setPropValue(String key, Object value) {
         try {
-            dlog("Setting prop " + key + " to " + value.toString());
-            Field field = Build.class.getDeclaredField(key);
-            field.setAccessible(true);
-            field.set(null, value);
-            field.setAccessible(false);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
+            Field field;
+            Class<?> targetClass;
+            try {
+                targetClass = Build.class;
+                field = targetClass.getDeclaredField(key);
+            } catch (NoSuchFieldException e) {
+                targetClass = Build.VERSION.class;
+                field = targetClass.getDeclaredField(key);
+            }
+            if (field != null) {
+                field.setAccessible(true);
+                Class<?> fieldType = field.getType();
+                if (fieldType == int.class || fieldType == Integer.class) {
+                    if (value instanceof Integer) {
+                        field.set(null, value);
+                    } else if (value instanceof String) {
+                        field.set(null, Integer.parseInt((String) value));
+                    }
+                } else if (fieldType == String.class) {
+                    field.set(null, String.valueOf(value));
+                }
+                field.setAccessible(false);
+            }
+        } catch (IllegalAccessException | NoSuchFieldException e) {
             Log.e(TAG, "Failed to set prop " + key, e);
-        }
-    }
-
-    private static void setVersionFieldString(String key, String value) {
-        try {
-            dlog("Setting prop " + key + " to " + value.toString());
-            Field field = Build.VERSION.class.getDeclaredField(key);
-            field.setAccessible(true);
-            field.set(null, value);
-            field.setAccessible(false);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            Log.e(TAG, "Failed to spoof prop " + key, e);
+        } catch (NumberFormatException e) {
+            Log.e(TAG, "Failed to parse value for field " + key, e);
         }
     }
 
