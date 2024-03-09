@@ -56,8 +56,10 @@ public class PropImitationHooks {
 
     private static final String PACKAGE_ARCORE = "com.google.ar.core";
     private static final String PACKAGE_FINSKY = "com.android.vending";
+    private static final String PACKAGE_GCAM = "com.google.android.GoogleCamera";
     private static final String PACKAGE_GMS = "com.google.android.gms";
     private static final String PROCESS_GMS_UNSTABLE = PACKAGE_GMS + ".unstable";
+    private static final String PACKAGE_GPHOTOS = "com.google.android.apps.photos";
     private static final String PACKAGE_SETUPWIZARD = "com.google.android.setupwizard";
 
     private static final ComponentName GMS_ADD_ACCOUNT_ACTIVITY = ComponentName.unflattenFromString(
@@ -172,6 +174,16 @@ public class PropImitationHooks {
         } else if (!sStockFp.isEmpty() && packageName.equals(PACKAGE_ARCORE)) {
             dlog("Setting stock fingerprint for: " + packageName);
             setPropValue("FINGERPRINT", sStockFp);
+        } else if (packageName.equals(PACKAGE_GCAM)) {
+            if (SystemProperties.getBoolean("persist.sys.pixelprops.gcam", true)) {
+                dlog("Setting Pixel 7 Pro props for: " + packageName);
+                setPixel7ProProps();
+            }
+        } else if (packageName.equals(PACKAGE_GPHOTOS)) {
+            if (SystemProperties.getBoolean("persist.sys.pixelprops.gphotos", true)) {
+                dlog("Setting Pixel XL props for: " + packageName);
+                setPixelXLProps();
+            }
         } else {
             if (SystemProperties.getBoolean("persist.sys.pixelprops.games", false)) {
                 Map<String, Object> gamePropsToSpoof = null;
@@ -298,6 +310,30 @@ public class PropImitationHooks {
             Log.e(TAG, "Failed to register task stack listener!", e);
         }
     }
+
+   private static void setPixelXLProps() {
+        setPropValue("MANUFACTURER", "Google");
+        setPropValue("MODEL", "Pixel XL");
+        setPropValue("FINGERPRINT", "google/marlin/marlin:10/QP1A.191005.007.A3/5972272:user/release-keys");
+        setPropValue("BRAND", "google");
+        setPropValue("PRODUCT", "marlin");
+        setPropValue("DEVICE", "marlin");
+        setPropValue("ID", "5972272");
+        setPropValue("TYPE", "user");
+        setPropValue("TAGS", "release-keys");
+   }
+
+   private static void setPixel7ProProps() {
+        setPropValue("MANUFACTURER", "Google");
+        setPropValue("MODEL", "Pixel 7 Pro");
+        setPropValue("FINGERPRINT", "google/cheetah/cheetah:13/TQ3A.230901.001.C2/10753682:user/release-keys");
+        setPropValue("BRAND", "google");
+        setPropValue("PRODUCT", "cheetah");
+        setPropValue("DEVICE", "cheetah");
+        setPropValue("ID", "10753682");
+        setPropValue("TYPE", "user");
+        setPropValue("TAGS", "release-keys");
+   }
 
     private static boolean isGmsAddAccountActivityOnTop() {
         try {
