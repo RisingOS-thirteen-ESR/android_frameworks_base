@@ -249,7 +249,7 @@ public class PropImitationHooks {
     }
 
     private static void setCertifiedPropsForGms(Context context) {
-        String packageName = "top.kusuma.pihooks";
+        String packageName = "top.kusuma.properties";
         if (!isPackageInstalled(context, packageName)) {
             Log.e(TAG, "'" + packageName + "' is not installed.");
             return;
